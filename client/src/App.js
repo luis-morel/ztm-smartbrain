@@ -32,6 +32,13 @@ class App extends Component {
         super();
         this.state = {
             box: {},
+            user: {
+                id: '',
+                name: '',
+                email: '',
+                entries: 0,
+                joined: ''
+            },
             imageUrl: '',
             input: '',
             loggedIn: false,
@@ -62,12 +69,47 @@ class App extends Component {
     };
 
     handleSubmit = () => {
-        this.setState({ imageUrl: this.state.input })
+        const { input, user } = this.state;
+        this.setState({ imageUrl: input })
         clarifaiApp.models.predict(
             Clarifai.FACE_DETECT_MODEL,
-            this.state.input)
-            .then(response => this.renderImageFaceBox(this.calculateFaceRegion(response)))
+            input
+        )
+            .then(response => {
+                if (response) {
+                    fetch('http://localhost:3000/image', {
+                        method: 'put',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: user.id
+                        })
+                    })
+                        .then(res => res.json())
+                        .then(count => {
+                            this.setState(
+                                Object.assign(
+                                    this.state.user,
+                                    { entries: count }
+                                ),
+                                this.renderImageFaceBox(this.calculateFaceRegion(response))
+                            )
+                        })
+                }                
+            })
             .catch(error => console.log(error));
+    };
+
+    loadUser = (data) => {
+        const { id, name, email, entries, joined } = data;
+        this.setState({
+            user: {
+                id,
+                name,
+                email,
+                entries,
+                joined
+            },
+        });
     };
 
     renderImageFaceBox = (box) => {
@@ -75,7 +117,7 @@ class App extends Component {
     };
 
     render() {
-        const { box, imageUrl, loggedIn, route } = this.state;
+        const { box, imageUrl, loggedIn, route, user } = this.state;
         return (
             <div className="App">
                 <Particles
@@ -90,7 +132,10 @@ class App extends Component {
                 {route === 'home'
                     ? <div>
                         <Logo />
-                        <Rank />
+                        <Rank
+                            name={user.name}
+                            entries={user.entries}
+                        />
                         <ImageLinkForm
                             handleInput={this.handleInput}
                             handleSubmit={this.handleSubmit}
@@ -102,8 +147,14 @@ class App extends Component {
                     </div>
                     : (
                         this.state.route === 'signin'
-                            ? <SignIn handleRoute={this.handleRoute} />
-                            : <Register handleRoute={this.handleRoute} />
+                            ? <SignIn
+                                handleRoute={this.handleRoute}
+                                loadUser={this.loadUser}
+                            />
+                            : <Register
+                                handleRoute={this.handleRoute}
+                                loadUser={this.loadUser}
+                            />
                     )
                 }
             </div>
