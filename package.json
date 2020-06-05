@@ -1,5 +1,5 @@
 {
-  "name": "ztm-smartbrain",
+  "name": "ztm-face-recognition",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -9,18 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/luis-morel/ztm-smartbrain.git"
+    "url": "git+https://github.com/luis-morel/ztm-face-recognition.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/luis-morel/ztm-smartbrain/issues"
+    "url": "https://github.com/luis-morel/ztm-face-recognition/issues"
   },
-  "homepage": "https://github.com/luis-morel/ztm-smartbrain#readme",
+  "homepage": "https://github.com/luis-morel/ztm-face-recognition#readme",
   "dependencies": {
-    "bcrypt-nodejs": "0.0.3",
+    "bcrypt": "^4.0.1",
     "cors": "^2.8.5",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "knex": "^0.21.1",
+    "pg": "^8.2.1"
   }
 }
