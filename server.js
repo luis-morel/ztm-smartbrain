@@ -48,65 +48,54 @@ app.post('/signin', (req, res) => {
         db.select()
             .from('logins')
             .where({ email })
-            .then(results => {
-                if (results.length) {
-                    bcrypt.compare(password, results[0].hash, (error, result) => {
+            .then(resultsSet => {
+                if (resultsSet.length) {
+                    bcrypt.compare(password, resultsSet[0].hash, (error, result) => {
                         if (result) {
                             db.select()
                                 .from('users')
                                 .where({ email })
                                 .then(user => res.json(user[0]))
-                                .catch(error => res.json("Unable to retrieve user."))
-                        } else
-                            res.status(400).json("Invalid login. Please try again.");
+                                .catch(error => res.status(400).json("Unable to retrieve user."));
+                        } else res.status(400).json("Invalid login. Please try again.");
                     });
-                } else
-                    res.status(400).json("Invalid login. Please try again.");
+                } else res.status(400).json("Invalid login. Please try again.");
             })
-            .catch(error => {
-                console.log(error);
-                res.status(400).json("Something went wrong. Please try again.");
-            });
-    } else
-        res.status(400).json("Invalid login. Please try again.");
+            .catch(error => res.status(400).json("Something went wrong. Please try again."));
+    } else res.status(400).json("Invalid login. Please try again.");
 });
 
 app.post('/register', (req, res) => {
     const { name, email, password } = req.body;
     if (name && email && password) {
+
         const newUser = {
             name,
             email,
             joined: new Date()
         };
-        db('users')
-            .returning('*') // returns specified columns for inserted row
-            .insert(newUser)
-            .then(user => {
-                if (user.length) {
-                    console.log(user);
-                    bcrypt.hash(password, saltRounds, (error, hash) => {
-                        if (error) res.status(400).json("Unable to encrypt password");
-                        db('logins')
-                            .insert({
-                                email: user[0].email,
-                                hash
+        const hash = bcrypt.hashSync(password, saltRounds);
+        db.transaction(trx => {
+            trx.insert({ email, hash })
+                .into('logins')
+                .returning('email')
+                .then(resultsSet => {
+                    if (resultsSet.length) {
+                        return db('users')
+                            .insert(newUser)
+                            .returning('*')
+                            .then(user => {
+                                if (user.length) res.json(user[0])
+                                else res.status(400).json('Unable to register user.')
                             })
-                            .then(result => res.json(user[0]))
-                            .catch(error => {
-                                console.log(error);
-                                res.status(400).json("Unable to create login");
-                            })
-                    })
-                }
-            })
-            .catch(error => {
-                console.log(error);
-                res.status(400).json("Something failed. Please try again.");
-            })
-    } else {
-        res.status(400).json('Please enter valid data and try again.');
-    };
+                    } else res.status(400).json('Unable to register user.')
+                })
+                .then(trx.commit)
+                .catch(trx.rollback);
+        })
+            .catch(error => res.status(400).json('Unable to register user'));
+    }
+    else res.status(400).json('Unable to register user.');
 });
 
 app.get('/profile/:id', (req, res) => {
