@@ -13,6 +13,7 @@ const ImageLinkForm = ({ handleInput, handleSubmit }) => {
                         type='text'
                         className='f4 pa2 w-70 center'
                         onChange={handleInput}
+                        placeholder='Enter image URL'
                     />
                     <button
                         className='w-30 grow f4 link ph3 pv2 dib white bg-light-purple'

@@ -65,7 +65,23 @@ class App extends Component {
     };
 
     handleRoute = (route, loggedIn) => {
-        this.setState({ route, loggedIn })
+        if (route === 'signin')
+            this.setState({
+                box: {},
+                user: {
+                    id: '',
+                    name: '',
+                    email: '',
+                    entries: 0,
+                    joined: ''
+                },
+                imageUrl: '',
+                input: '',
+                route,
+                loggedIn
+            })
+        else
+            this.setState({ route, loggedIn })
     };
 
     handleSubmit = () => {
@@ -94,7 +110,8 @@ class App extends Component {
                                 this.renderImageFaceBox(this.calculateFaceRegion(response))
                             )
                         })
-                }                
+                        .catch(console.log);
+                }
             })
             .catch(error => console.log(error));
     };

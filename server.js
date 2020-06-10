@@ -6,12 +6,18 @@ const bcrypt = require('bcrypt'); // Password Hashing Tool
 const saltRounds = 10; // bcrypt Salting
 const knex = require('knex'); // SQL Query Builder
 
+// Controller Modules
+const image = require('./controllers/image');
+const profile = require('./controllers/profile');
+const register = require('./controllers/register');
+const signin = require('./controllers/signin');
+
 // Middleware
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Connecting to PostgreSQL database
+// PostgreSQL Database
 const db = knex({
     client: 'pg',
     connection: {
@@ -28,107 +34,12 @@ const db = knex({
 ==================================
 */
 
-/* Prospective API Routes
-    /
-    /signin --> POST = success/fail
-    /register --> POST = user
-    /profile/:userId --> GET = user
-    /image --> PUT --> user or count
-    /logout
-    *
-End of Prospective API Routes */
-
-app.get('/', (req, res) => {
-    res.json("Welcome to the Zero-To-Mastery Face Recognition App!");
-});
-
-app.post('/signin', (req, res) => {
-    const { email, password } = req.body;
-    if (email != '' && password != '') {
-        db.select()
-            .from('logins')
-            .where({ email })
-            .then(resultsSet => {
-                if (resultsSet.length) {
-                    bcrypt.compare(password, resultsSet[0].hash, (error, result) => {
-                        if (result) {
-                            db.select()
-                                .from('users')
-                                .where({ email })
-                                .then(user => res.json(user[0]))
-                                .catch(error => res.status(400).json("Unable to retrieve user."));
-                        } else res.status(400).json("Invalid login. Please try again.");
-                    });
-                } else res.status(400).json("Invalid login. Please try again.");
-            })
-            .catch(error => res.status(400).json("Something went wrong. Please try again."));
-    } else res.status(400).json("Invalid login. Please try again.");
-});
-
-app.post('/register', (req, res) => {
-    const { name, email, password } = req.body;
-    if (name && email && password) {
-
-        const newUser = {
-            name,
-            email,
-            joined: new Date()
-        };
-        const hash = bcrypt.hashSync(password, saltRounds);
-        db.transaction(trx => {
-            trx.insert({ email, hash })
-                .into('logins')
-                .returning('email')
-                .then(resultsSet => {
-                    if (resultsSet.length) {
-                        return db('users')
-                            .insert(newUser)
-                            .returning('*')
-                            .then(user => {
-                                if (user.length) res.json(user[0])
-                                else res.status(400).json('Unable to register user.')
-                            })
-                    } else res.status(400).json('Unable to register user.')
-                })
-                .then(trx.commit)
-                .catch(trx.rollback);
-        })
-            .catch(error => res.status(400).json('Unable to register user'));
-    }
-    else res.status(400).json('Unable to register user.');
-});
-
-app.get('/profile/:id', (req, res) => {
-    const { id } = req.params;
-    db.select()
-        .from('users')
-        .where({ id })
-        .then(user => {
-            if (user.length) res.json(user[0])
-            else res.json("User not found");
-        })
-        .catch(error => {
-            console.log("\nError:\n", error);
-            res.status(400).json("Oops, something went wrong.");
-        });
-});
-
-app.put('/image', (req, res) => {
-    const { id } = req.body;
-    db('users')
-        .where({ id })
-        .increment('entries', 1)
-        .returning('entries')
-        .then(result => res.json(result[0]))
-        .catch(error => {
-            console.log("\nError:\n", error);
-            res.status(400).json("Unable to retrieve entries.");
-        });
-});
-
-app.get('*', (req, res) => {
-    res.send('<h1>Looks like you\'ve reached a non-existent page. Please use a valid URL.</h1>');
-});
+app.get('/', (req, res) => { res.json("Welcome to the Zero-To-Mastery Face Recognition App!") });
+app.post('/signin', (req, res) => { signin.handleSignIn(req, res, db, bcrypt) });
+app.post('/register', (req, res) => { register.handleRegistration(req, res, db, bcrypt, saltRounds) });
+app.get('/profile/:id', (req, res) => { profile.getProfile(req, res, db) });
+app.put('/image', (req, res) => { image.scanImage(req, res, db) });
+app.get('*', (req, res) => { res.send('<h1>Looks like you\'ve reached a non-existent page. Please use a valid URL.</h1>') });
 
 /*
 ==================================
