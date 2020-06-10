@@ -39,6 +39,7 @@ app.post('/signin', (req, res) => { signin.handleSignIn(req, res, db, bcrypt) })
 app.post('/register', (req, res) => { register.handleRegistration(req, res, db, bcrypt, saltRounds) });
 app.get('/profile/:id', (req, res) => { profile.getProfile(req, res, db) });
 app.put('/image', (req, res) => { image.scanImage(req, res, db) });
+app.post('/imageurl', (req, res) => { image.handleApiCall(req, res) });
 app.get('*', (req, res) => { res.send('<h1>Looks like you\'ve reached a non-existent page. Please use a valid URL.</h1>') });
 
 /*
