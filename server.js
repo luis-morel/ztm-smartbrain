@@ -1,6 +1,6 @@
 const express = require('express'); // Web Server
 const app = express(); // Web App
-const PORT = 3000 || process.env.PORT; // Web Server Port
+const PORT = process.env.PORT || 3000; // Web Server Port
 const cors = require('cors');
 const bcrypt = require('bcrypt'); // Password Hashing Tool
 const saltRounds = 10; // bcrypt Salting
