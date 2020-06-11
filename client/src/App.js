@@ -82,7 +82,12 @@ class App extends Component {
     handleSubmit = () => {
         const { input, user } = this.state;
         this.setState({ imageUrl: input });
-        fetch('http://localhost:3000/imageurl', {
+
+        // Back-End Server URL
+        if (process.env.NODE_ENV === 'production') const URL = 'https://whispering-island-45495.herokuapp.com';
+        else const URL = 'http://localhost:3000';
+
+        fetch(`${URL}/imageurl`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ input })
@@ -90,7 +95,7 @@ class App extends Component {
             .then((response) => response.json())
             .then((response) => {
                 if (response) {
-                    fetch('http://localhost:3000/image', {
+                    fetch(`${URL}/image`, {
                         method: 'put',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
