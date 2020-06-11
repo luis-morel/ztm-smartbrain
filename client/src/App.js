@@ -9,6 +9,14 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import './App.css';
 
+// Web Server URL (Heroku\Local)
+if (process.env.NODE_ENV === 'production') {
+    const URL = 'https://whispering-island-45495.herokuapp.com';
+} else {
+    const URL = 'http://localhost:3000';
+}
+
+// Particles Config
 const particleOptions = {
     particles: {
         number: {
@@ -37,7 +45,8 @@ class App extends Component {
             imageUrl: '',
             input: '',
             loggedIn: false,
-            route: 'signin'
+            route: 'signin',
+            serverUrl: URL
         }
     };
 
@@ -83,11 +92,7 @@ class App extends Component {
         const { input, user } = this.state;
         this.setState({ imageUrl: input });
 
-        // Back-End Server URL
-        if (process.env.NODE_ENV === 'production') const URL = 'https://whispering-island-45495.herokuapp.com';
-        else const URL = 'http://localhost:3000';
-
-        fetch(`${URL}/imageurl`, {
+        fetch(`${URL}/api/imageurl`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ input })
@@ -95,7 +100,7 @@ class App extends Component {
             .then((response) => response.json())
             .then((response) => {
                 if (response) {
-                    fetch(`${URL}/image`, {
+                    fetch(`${URL}/api/image`, {
                         method: 'put',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -173,6 +178,7 @@ class App extends Component {
                             : <Register
                                 handleRoute={this.handleRoute}
                                 loadUser={this.loadUser}
+                                serverUrl={this.state.serverUrl}
                             />
                     )
                 }
