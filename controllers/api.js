@@ -9,7 +9,7 @@ const profile = require('./profile');
 const register = require('./register');
 const signin = require('./signin');
 
-// Endpoints
+// API Endpoints
 router.post('/signin', (req, res) => { signin.handleSignIn(req, res, db, bcrypt) });
 router.post('/register', (req, res) => { register.handleRegistration(req, res, db, bcrypt, saltRounds) });
 router.get('/profile/:id', (req, res) => { profile.getProfile(req, res, db) });
