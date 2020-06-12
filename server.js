@@ -1,6 +1,7 @@
 const express = require('express'); // Web Server
 const app = express(); // Web App
 const PORT = process.env.PORT || 3000; // Web Server Port
+const path = require("path");
 const cors = require('cors');
 // const bcrypt = require('bcrypt'); // Password Hashing Tool
 // const saltRounds = 10; // bcrypt Salting
@@ -62,18 +63,13 @@ app.use("/api", api);
 */
 
 // Serve Static Assets in Production Environment (e.g. Heroku)
-// Redirect Requests to React App (Client). Note: Declare API Endpoints Beforehand.
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production")
     app.use(express.static("client/build"));
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, "./client/build/index.html"));
-    });
-} else {
-    app.get('*', (req, res) => {
-        res.send('<h2 style="color: tomato"><p>Looks like you\'ve reached a non-existent page</p> <p>Please use a valid URL</p></h2>')
-    });
-};
 
+// Redirect Requests to React App (Client). Note: Declare API Endpoints Beforehand.
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, "./client/build/index.html"));
+});
 
 // Initializing Web Server
 app.listen(PORT, () => {
