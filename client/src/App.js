@@ -22,12 +22,19 @@ const particleOptions = {
     }
 };
 
+// Set API URL
+const setApiUrl = () => {
+    if (process.env.NODE_ENV === "production") return '/api'
+    else return 'http://localhost:3000/api'
+};
+const apiUrl = setApiUrl();
+
 class App extends Component {
 
     constructor() {
         super();
         this.state = {
-            // apiUrl: '',
+            apiUrl,
             box: {},
             imageUrl: '',
             input: '',
@@ -57,14 +64,6 @@ class App extends Component {
         return imageFaceBox;
     };
 
-    // componentDidMount = () => {
-    //     if (process.env.NODE_ENV === 'production')
-    //         this.setState({ apiUrl: 'https://whispering-island-45495.herokuapp.com/api' })
-    //     else
-    //         this.setState({ apiUrl: 'http://localhost:3000' })
-
-    // }
-
     handleInput = (event) => {
         this.setState({ input: event.target.value });
     };
@@ -90,10 +89,10 @@ class App extends Component {
     };
 
     handleSubmit = () => {
-        const { input, user } = this.state;
+        const { apiUrl, input, user } = this.state;
         this.setState({ imageUrl: input });
 
-        fetch('/api/imageurl', {
+        fetch(`${apiUrl}/imageurl`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ input })
@@ -101,7 +100,7 @@ class App extends Component {
             .then((response) => response.json())
             .then((response) => {
                 if (response) {
-                    fetch('/api/image', {
+                    fetch(`${apiUrl}/image`, {
                         method: 'put',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -173,10 +172,12 @@ class App extends Component {
                     : (
                         this.state.route === 'signin'
                             ? <SignIn
+                                apiUrl={this.state.apiUrl}
                                 handleRoute={this.handleRoute}
                                 loadUser={this.loadUser}
                             />
                             : <Register
+                                apiUrl={this.state.apiUrl}
                                 handleRoute={this.handleRoute}
                                 loadUser={this.loadUser}
                             />

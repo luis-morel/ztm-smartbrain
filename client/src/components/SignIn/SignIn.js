@@ -20,8 +20,8 @@ class SignIn extends React.Component {
 
     onFormSubmit = () => {
         const { email, password } = this.state;
-        const { handleRoute, loadUser } = this.props;
-        fetch('/api/signin', {
+        const { apiUrl, handleRoute, loadUser } = this.props;
+        fetch(`${apiUrl}/signin`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
