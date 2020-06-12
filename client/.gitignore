@@ -9,7 +9,7 @@
 /coverage
 
 # production
-/build
+# /build -- Needed for static assets
 
 # misc
 .DS_Store
