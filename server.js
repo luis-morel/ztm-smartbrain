@@ -12,15 +12,14 @@ const cors = require('cors');
 // const register = require('./controllers/register');
 // const signin = require('./controllers/signin');
 
-// API Endpoints
-const { api } = require("./controllers/api");
-app.use("/api", api);
-
-
 // Middleware
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// API Endpoints
+const { api } = require("./controllers/api");
+app.use("/api", api);
 
 // PostgreSQL Database
 // if (process.env.DATABASE_URL) {
@@ -63,14 +62,18 @@ app.use(express.json());
 */
 
 // Serve Static Assets in Production Environment (e.g. Heroku)
-if (process.env.NODE_ENV === "production")
-    app.use(express.static("client/build"));
-
-
 // Redirect Requests to React App (Client). Note: Declare API Endpoints Beforehand.
-app.get("*", function (req, res) {
-    res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static("client/build"));
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, "./client/build/index.html"));
+    });
+} else {
+    app.get('*', (req, res) => {
+        res.send('<h2 style="color: tomato"><p>Looks like you\'ve reached a non-existent page</p> <p>Please use a valid URL</p></h2>')
+    });
+};
+
 
 // Initializing Web Server
 app.listen(PORT, () => {

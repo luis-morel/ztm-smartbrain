@@ -18,9 +18,9 @@ class Register extends React.Component {
 
     onFormSubmit = () => {
         const { email, name, password } = this.state;
-        const { handleRoute, loadUser, serverURL } = this.props;
+        const { handleRoute, loadUser } = this.props;
 
-        fetch(`${serverURL}/register`, {
+        fetch('/api/register', {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, name, password })

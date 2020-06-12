@@ -1,8 +1,9 @@
 const knex = require('knex'); // SQL Query Builder
+var db = {};
 
 // PostgreSQL Database
 if (process.env.DATABASE_URL) {
-    const db = knex({
+    db = knex({
         client: 'pg',
         connection: {
             connectionString: process.env.DATABASE_URL,
@@ -10,7 +11,7 @@ if (process.env.DATABASE_URL) {
         }
     });
 } else {
-    const db = knex({
+    db = knex({
         client: 'pg',
         connection: {
             host: 'localhost', // 127.0.0.1

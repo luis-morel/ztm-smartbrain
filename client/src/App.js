@@ -9,13 +9,6 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import './App.css';
 
-// Web Server URL (Heroku\Local)
-if (process.env.NODE_ENV === 'production') {
-    const URL = 'https://whispering-island-45495.herokuapp.com';
-} else {
-    const URL = 'http://localhost:3000';
-}
-
 // Particles Config
 const particleOptions = {
     particles: {
@@ -34,19 +27,19 @@ class App extends Component {
     constructor() {
         super();
         this.state = {
+            // apiUrl: '',
             box: {},
+            imageUrl: '',
+            input: '',
+            loggedIn: false,
+            route: 'signin',
             user: {
                 id: '',
                 name: '',
                 email: '',
                 entries: 0,
                 joined: ''
-            },
-            imageUrl: '',
-            input: '',
-            loggedIn: false,
-            route: 'signin',
-            serverUrl: URL
+            }
         }
     };
 
@@ -63,6 +56,14 @@ class App extends Component {
             };
         return imageFaceBox;
     };
+
+    // componentDidMount = () => {
+    //     if (process.env.NODE_ENV === 'production')
+    //         this.setState({ apiUrl: 'https://whispering-island-45495.herokuapp.com/api' })
+    //     else
+    //         this.setState({ apiUrl: 'http://localhost:3000' })
+
+    // }
 
     handleInput = (event) => {
         this.setState({ input: event.target.value });
@@ -92,7 +93,7 @@ class App extends Component {
         const { input, user } = this.state;
         this.setState({ imageUrl: input });
 
-        fetch(`${URL}/api/imageurl`, {
+        fetch('/api/imageurl', {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ input })
@@ -100,7 +101,7 @@ class App extends Component {
             .then((response) => response.json())
             .then((response) => {
                 if (response) {
-                    fetch(`${URL}/api/image`, {
+                    fetch('/api/image', {
                         method: 'put',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -178,7 +179,6 @@ class App extends Component {
                             : <Register
                                 handleRoute={this.handleRoute}
                                 loadUser={this.loadUser}
-                                serverUrl={this.state.serverUrl}
                             />
                     )
                 }
