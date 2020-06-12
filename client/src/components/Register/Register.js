@@ -23,7 +23,11 @@ class Register extends React.Component {
         fetch(`${apiUrl}/register`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name, password })
+            body: JSON.stringify({
+                email: email.toLowerCase(),
+                name,
+                password
+            })
         })
             .then(res => res.json())
             .then(user => {
